@@ -9,7 +9,7 @@ data MonoidalAlgebra = Var Int | Mempty | Mappend MonoidalAlgebra MonoidalAlgebr
 
 -- Simple enough instance declarations
 instance Monoid MonoidalAlgebra where
-    mempty = Mempty
+    mempty  = Mempty
     mappend = Mappend
 
 -- Monoid laws
@@ -60,14 +60,14 @@ instance (Monoid a) => Monoid (List a) where
     mappend m Nil = m 
     mappend (Cons a lst) (Cons b lst2) = Cons (mappend a b) (mappend lst lst2)
 
--- Test left identity law for our weird list type 
+-- Test left identity law for our weird list monoid
 prop_left_unit :: List MonoidalAlgebra -> Bool
 prop_left_unit m = mappend mempty m == m
 
--- Test right identity law for our weird list type 
+-- Test right identity law for our weird list monoid 
 prop_right_unit :: List MonoidalAlgebra -> Bool
 prop_right_unit m = mappend m mempty == m 
 
--- Test associativity law for our weird list type 
+-- Test associativity law for our weird list monoid 
 prop_assoc :: List MonoidalAlgebra -> List MonoidalAlgebra -> List MonoidalAlgebra -> Bool
 prop_assoc x y z = mappend x (mappend y z) == mappend (mappend x y) z
