@@ -2,22 +2,13 @@
 import Data.Ord
 import Data.List
 import Test.QuickCheck
-import Prelude
 import Data.Data
 import Data.Generics.Uniplate.Data
+import Rewriter
 
 data AbelianAlgebra = Var Int | Zero | Negate AbelianAlgebra | AbelianAlgebra :+: AbelianAlgebra deriving (Show, Data, Ord)
 
 -- laws for abelian groups
-rewrite_rules :: AbelianAlgebra -> Maybe AbelianAlgebra 
-rewrite_rules x = toMby $ filter isJ (map ($x) rules)
-    where
-        isJ (Just _) = True
-        isJ _        = False
-
-        toMby [] = Nothing 
-        toMby (x:_) = x
-
 rules = [neg_zero, assoc, right_id, left_id, right_inverse, left_inverse, commutativity]
 
 -- Negate zero = zero
@@ -64,7 +55,7 @@ commutativeRewrite x = if areEqual x output then Nothing else Just output
         flatten z         = [z]
 
 -- Rewrite until we hit a ground instance
-simplify = rewrite rewrite_rules
+simplify = perform_rewrite rules
 
 -- Equality
 instance Eq AbelianAlgebra where
