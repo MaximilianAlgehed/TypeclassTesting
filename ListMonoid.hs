@@ -3,8 +3,10 @@ import Test.QuickCheck
 import MonoidAlgebra
 import Rewriter
 
+-- Lists, durr...
 data List a = Nil | Cons a (List a) deriving (Eq, Show)
 
+-- Lists, durr
 instance (Arbitrary a) => Arbitrary (List a) where
     arbitrary = fmap (foldl (flip Cons) Nil) (arbitrary :: (Arbitrary a) => Gen [a])
 

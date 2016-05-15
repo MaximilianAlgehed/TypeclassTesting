@@ -69,6 +69,7 @@ areEqual (a :+: b) (c :+: d) = (areEqual a c) && (areEqual b d)
 areEqual (Negate x) (Negate y) = areEqual x y
 areEqual _ _ = False
 
+-- Abealean groups have to actually be commutative
 prop_commutative :: AbelianAlgebra -> AbelianAlgebra -> Bool
 prop_commutative x y = (x :+: y) == (y :+: x)
 
@@ -85,4 +86,3 @@ instance Arbitrary AbelianAlgebra where
                                 (2, do
                                     x <- arb (n - 1)
                                     return (Negate x))]
-

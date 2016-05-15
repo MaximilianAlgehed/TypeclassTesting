@@ -6,24 +6,25 @@ import Data.Generics.Uniplate.Data
 import Rewriter
 
 -- The initial algebra of monoids
-data MonoidalAlgebra = Var Int | Mempty | Mappend MonoidalAlgebra MonoidalAlgebra deriving (Data, Typeable, Show)
+data MonoidalAlgebra = Var Int | Mempty | MonoidalAlgebra :+: MonoidalAlgebra deriving (Data, Typeable, Show)
 
 -- Simple enough instance declarations
 instance Monoid MonoidalAlgebra where
     mempty  = Mempty
-    mappend = Mappend
+    mappend = (:+:)
 
+-- Rewrite rules
 rules = [left_identity, right_identity, assoc]
 
 -- Monoid laws
 -- Left identity
-left_identity (Mappend Mempty m) = Just m
+left_identity (Mempty :+: m) = Just m
 left_identity _ = Nothing
 -- Right identity
-right_identity (Mappend m Mempty) = Just m
+right_identity (m :+: Mempty) = Just m
 right_identity _ = Nothing
 -- Associativity
-assoc (Mappend (Mappend x y) z) = Just $ Mappend x (Mappend y z)
+assoc ((x :+: y) :+: z) = Just $ x :+: (y :+: z)
 assoc _ = Nothing
 
 -- Rewrite until we hit a ground instance
@@ -37,7 +38,7 @@ instance Eq MonoidalAlgebra where
 areEqual :: MonoidalAlgebra -> MonoidalAlgebra -> Bool
 areEqual (Var x) (Var y) = x == y
 areEqual Mempty Mempty = True
-areEqual (Mappend a b) (Mappend c d) = (areEqual a c) && (areEqual b d)
+areEqual (a :+: b) (c :+: d) = (areEqual a c) && (areEqual b d)
 areEqual _ _ = False
 
 -- Arbitrary term in the algebra of monoids
@@ -49,5 +50,8 @@ instance Arbitrary MonoidalAlgebra where
                                 (2, do
                                     x <- arb (n `div` 2)
                                     y <- arb (n `div` 2)
-                                    return (Mappend x y))]
+                                    return (x :+: y))]
 
+-- Is it associative?
+prop_assoc :: MonoidalAlgebra -> MonoidalAlgebra -> MonoidalAlgebra -> Bool
+prop_assoc x y z = x :+: (y :+: z) == (x :+: y) :+: z
